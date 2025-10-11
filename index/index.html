@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>try</title>
+<title>Login</title>
 <style>
   /* Style the body to center content */
   body {
@@ -63,14 +63,14 @@
 <h1>Login</h1>
 <input type="text" id="username" placeholder="Enter username" />
 <br />
-<button onclick="checkLogin()">Login</button>
+<button onclick="checkLogin()">Enter</button>
 <p id="message"></p>
 </div>
 
 <script>
 async function fetchLoginInfo() {
-  const owner = 'REPO_OWNER'; // replace with your repo owner
-  const repo = 'REPO_NAME';   // replace with your repo name
+  const owner = 'ggz2'; // replace with your repo owner
+  const repo = 'info';   // replace with your repo name
   const path = 'path/to/login.txt'; // replace with your login file path
 
   const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
