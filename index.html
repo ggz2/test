@@ -5,62 +5,117 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Loading...</title>
 <style>
-  /* Body with background GIF and centered content */
   body {
     margin: 0;
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-image: url('https://github/ggz2/info/XpLoad.gif'); /* Replace with your GIF URL */
+    background-image: url('https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif'); /* Replace with your GIF URL */
     background-size: cover;
     background-position: center;
     font-family: Arial, sans-serif;
   }
 
-  /* Loading container style */
   .loading-container {
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 40px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 30px;
     border-radius: 10px;
+    width: 350px;
+    max-width: 90%;
     text-align: center;
-    max-width: 400px;
   }
 
-  /* Loading message style */
   h1 {
-    margin: 0 0 20px 0;
+    margin-top: 0;
   }
 
-  /* Optional: a spinner or gif for loading indicator */
-  .spinner {
-    width: 50px;
-    height: 50px;
-    margin: 0 auto 20px auto;
-    border: 6px solid #ccc;
-    border-top-color: #333;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+  /* Progress bar styles */
+  .progress-bar {
+    width: 100%;
+    background-color: #ddd;
+    border-radius: 20px;
+    overflow: hidden;
+    height: 20px;
+    margin: 20px 0;
   }
 
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+  .progress {
+    height: 100%;
+    width: 0%;
+    background-color: #4caf50;
+    transition: width 0.2s;
+  }
+
+  /* Tips text */
+  #tip {
+    font-style: italic;
+    margin-top: 10px;
   }
 </style>
 <script>
-  // Function to hide loading screen or redirect after delay
+  // Array of tips
+  const tips = [
+    "Tip: Beware!",
+    "Tip: Lock in.",
+    "Tip: Be ready for anything.",
+    "Tip: Turn on Auto Save.",
+    "Tip: Use the Mini Map.",
+    "Tip: Be resourceful.",
+    "Tip: Backup important saves.",
+    "Tip: One More Reel."
+  ];
+
+  // Randomly select a tip
+  function getRandomTip() {
+    return tips[Math.floor(Math.random() * tips.length)];
+  }
+
+  // Function to animate progress bar
+  function animateProgress(duration) {
+    const progress = document.querySelector('.progress');
+    let start = null;
+
+    function step(timestamp) {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+      const progressPercent = Math.min((elapsed / duration) * 100, 100);
+      progress.style.width = progressPercent + '%';
+
+      if (progressPercent < 100) {
+        requestAnimationFrame(step);
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  // Initialize loading screen
   window.onload = function() {
-    // For example, redirect after 3 seconds
+    const minTime = 2000; // 2 seconds
+    const maxTime = 300000; // 5 minutes
+    const loadTime = Math.random() * (maxTime - minTime) + minTime; // in ms
+
+    // Set a random tip
+    document.getElementById('tip').innerText = getRandomTip();
+
+    // Animate progress bar
+    animateProgress(loadTime);
+
+    // Redirect after the randomized time
     setTimeout(function() {
-      window.location.href = "https://www.example.com"; // Change to your target URL
-    }, 130000);
+      window.location.href = "https://ggz2.github.io/index/index.html"; // Change to your target URL
+    }, loadTime);
   };
 </script>
 </head>
 <body>
   <div class="loading-container">
-    <div class="spinner"></div>
     <h1>Loading...</h1>
+    <div class="progress-bar">
+      <div class="progress"></div>
+    </div>
+    <div id="tip"></div>
   </div>
 </body>
 </html>
