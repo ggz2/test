@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>login</title>
+<title>Login Page</title>
 <style>
   body {
     display: flex;
@@ -54,24 +54,48 @@
 <body>
 
 <div class="login-box">
-<h2>login</h2>
+<h2>Login</h2>
 <input type="text" id="username" placeholder="Enter username" />
 <br />
-<button onclick="checkLogin()">enter</button>
+<button onclick="checkLogin()">Login</button>
 <p id="message"></p>
 </div>
 
 <script>
-  // Example login info (replace with your GitHub fetch if needed)
-  const validUsernames = ['user1', 'user2', 'admin']; // replace or fetch dynamically
-  const redirectUrl = 'https://ggz2.github.io/gall.html'; // URL to go upon success
+  const githubUser = 'ggz2'; // your GitHub username
+  const githubRepo = 'info'; // your repo containing valid_users.json
+  const jsonPath = 'main/valid_users.json'; // path inside the repo
+  const redirectUrl = 'https://ggz2.github.io/test/gall.html'; // redirect URL after success
+
+  let validUsernames = [];
+
+  // Fetch the list of valid usernames from GitHub
+  fetch(`https://raw.githubusercontent.com/${githubUser}/${githubRepo}/${jsonPath}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      validUsernames = data;
+      console.log('Valid usernames loaded:', validUsernames);
+    })
+    .catch(error => {
+      console.error('Error fetching usernames:', error);
+      document.getElementById('message').innerText = 'Error loading user list.';
+    });
 
   function checkLogin() {
     const username = document.getElementById('username').value.trim();
 
+    if (validUsernames.length === 0) {
+      document.getElementById('message').innerText = 'User list not loaded yet.';
+      return;
+    }
+
     if (validUsernames.includes(username)) {
       document.getElementById('message').innerText = 'Login successful!';
-      // Redirect after a short delay if needed
       setTimeout(() => {
         window.location.href = redirectUrl;
       }, 500);
