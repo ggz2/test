@@ -81,7 +81,7 @@
     .then(response => response.json())
     .then(files => {
       // Filter image files (e.g., jpg, png, gif)
-      const imageFiles = files.filter(file => /\.(png|jpg|jpeg|gif)$/i.test(file.name));
+      const imageFiles = files.filter(file => /\.(png|jpg|jpeg|gif|mp4)$/i.test(file.name));
       displayImages(imageFiles);
     })
     .catch(error => {
