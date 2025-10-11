@@ -65,10 +65,20 @@
     "Tip: One More Reel."
   ];
 
-  // Randomly select a tip
+let tipIntervalId = null;
+
   function getRandomTip() {
     return tips[Math.floor(Math.random() * tips.length)];
   }
+
+  function startTipsRotation() {
+    // Change tip every 2 seconds
+    document.getElementById('tip').innerText = getRandomTip();
+    tipIntervalId = setInterval(() => {
+      document.getElementById('tip').innerText = getRandomTip();
+    }, 2000);
+  }
+
 
   // Function to animate progress bar
   function animateProgress(duration) {
