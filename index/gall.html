@@ -3,17 +3,20 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>view+</title>
+<title>view</title>
 <style>
   body {
     font-family: Arial, sans-serif;
     margin: 0;
     background: #f0f0f0;
   }
+
   h1 {
     text-align: center;
     padding: 20px;
   }
+
+  /* Gallery styles */
   #gallery {
     display: flex;
     flex-wrap: wrap;
@@ -21,6 +24,8 @@
     gap: 10px;
     padding: 10px;
   }
+
+  /* Thumbnail images */
   .thumbnail {
     width: 15%;
     height: 15%;
@@ -29,11 +34,14 @@
     border-radius: 8px;
     transition: transform 0.2s;
   }
+
   .thumbnail:hover {
     transform: scale(1.05);
   }
+
+  /* Lightbox overlay styles */
   #lightbox {
-    display: none;
+    display: none; /* Hidden by default */
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
@@ -45,21 +53,27 @@
     padding: 20px;
     box-sizing: border-box;
   }
+
   #mediaContainer {
     max-width: 90%;
     max-height: 80%;
     margin-bottom: 10px;
   }
+
   #lightbox img, #lightbox video {
     max-width: 100%;
     max-height: 100%;
     border-radius: 8px;
   }
+
+  /* Link to original */
   #originalLink {
     color: #fff;
     font-size: 1em;
     word-break: break-all;
   }
+
+  /* Close button */
   #closeBtn {
     background-color: #fff;
     border: none;
@@ -75,6 +89,7 @@
 <h1>enjoy</h1>
 <div id="gallery"></div>
 
+<!-- Lightbox overlay -->
 <div id="lightbox" onclick="closeLightbox()">
   <div id="mediaContainer"></div>
   <button id="closeBtn" onclick="closeLightbox()">Close</button>
@@ -82,100 +97,72 @@
 </div>
 
 <script>
-const githubUser = 'gg2'; // your GitHub username
-const githubRepo = 'info'; // your GitHub repo
-const githubFolder = 'all'; // folder on GitHub
-const githubApiUrl = `https://api.github.com/repos/${githubUser}/${githubRepo}/contents/${githubFolder}`;
+  const owner = 'ggz2'; // your GitHub username
+  const repo = 'info'; // your repo containing files
+  const folderPath = 'all'; // folder with images/videos
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}`;
 
-// Replit media URL - replace with your actual URL
-const replitMediaUrl = 'https://plushN.repl.co/test64/';
+  fetch(apiUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(files => {
+      // Filter for images and mp4 videos
+      const mediaFiles = files.filter(file => /\.(png|jpg|jpeg|gif|mp4)$/i.test(file.name));
+      displayMedia(mediaFiles);
+    })
+    .catch(error => {
+      console.error('Error fetching media files:', error);
+    });
 
-// Fetch from GitHub
-fetch(githubApiUrl)
-  .then(res => {
-    if (!res.ok) throw new Error('GitHub API error');
-    return res.json();
-  })
-  .then(files => {
-    const mediaFiles = files.filter(file => /\.(png|jpg|jpeg|gif|mp4)$/i.test(file.name));
-    displayMedia(mediaFiles);
-  })
-  .catch(console.error);
+  function displayMedia(files) {
+    const gallery = document.getElementById('gallery');
+    files.forEach(file => {
+      const thumbnailUrl = file.download_url;
+      const ext = file.name.split('.').pop().toLowerCase();
 
-// Fetch from Replit (assuming static files served from here)
-fetch(replitMediaUrl)
-  .then(res => {
-    if (!res.ok) throw new Error('Replit fetch error');
-    return res.json();
-  })
-  .then(replitFiles => {
-    // replitFiles should be an array of filenames (if your API returns such)
-    // For static hosting, you'll need a JSON listing files, or hardcode filenames
-    // For simplicity, let's assume you have a JSON with filenames:
-    // e.g., replitFiles = ["video1.mp4", "image2.jpg"]
-    // and the URLs are replitMediaUrl + filename
-    // For demonstration, let's hardcode an array:
-    const replitMediaFiles = replitFiles; // or use a predefined array
-    displayReplitMedia(replitMediaFiles);
-  })
-  .catch(error => {
-    // If your Replit host doesn't provide JSON list, you could hardcode filenames
-    // or skip this
-    console.log('Replit media fetch error or not implemented.');
-  });
+      const thumb = document.createElement('img');
+      thumb.src = thumbnailUrl;
+      thumb.className = 'thumbnail';
+      thumb.title = file.name;
+      thumb.onclick = () => openLightbox(file.download_url, file.html_url, ext);
 
-function displayMedia(files) {
-  files.forEach(file => {
-    const ext = file.name.split('.').pop().toLowerCase();
-    const url = file.download_url;
-    createThumbnail(url, ext, url);
-  });
-}
-
-function displayReplitMedia(filenames) {
-  filenames.forEach(filename => {
-    const ext = filename.split('.').pop().toLowerCase();
-    const url = replitMediaUrl + filename;
-    createThumbnail(url, ext, url);
-  });
-}
-
-function createThumbnail(url, ext, originalUrl) {
-  const gallery = document.getElementById('gallery');
-  const thumb = document.createElement('img');
-  thumb.src = url;
-  thumb.className = 'thumbnail';
-  thumb.title = originalUrl;
-  thumb.onclick = () => openLightbox(url, originalUrl, ext);
-  gallery.appendChild(thumb);
-}
-
-function openLightbox(mediaUrl, originalUrl, ext) {
-  const container = document.getElementById('mediaContainer');
-  const linkDiv = document.getElementById('originalLink');
-  container.innerHTML = '';
-  linkDiv.innerHTML = '';
-
-  if (ext === 'mp4') {
-    const video = document.createElement('video');
-    video.src = mediaUrl;
-    video.controls = true;
-    video.autoplay = true;
-    container.appendChild(video);
-  } else {
-    const img = document.createElement('img');
-    img.src = mediaUrl;
-    container.appendChild(img);
+      gallery.appendChild(thumb);
+    });
   }
 
-  // Link to original
-  linkDiv.innerHTML = `<a href="${originalUrl}" target="_blank" style="color:#fff;text-decoration:underline;">View Original</a>`;
-  document.getElementById('lightbox').style.display = 'flex';
-}
+  function openLightbox(mediaUrl, originalUrl, ext) {
+    const container = document.getElementById('mediaContainer');
+    const linkDiv = document.getElementById('originalLink');
+    container.innerHTML = ''; // Clear previous content
+    linkDiv.innerHTML = '';
 
-function closeLightbox() {
-  document.getElementById('lightbox').style.display = 'none';
-}
+    if (ext === 'mp4') {
+      // Show video player
+      const video = document.createElement('video');
+      video.src = mediaUrl;
+      video.controls = true;
+      video.autoplay = true;
+      container.appendChild(video);
+    } else {
+      // Show image
+      const img = document.createElement('img');
+      img.src = mediaUrl;
+      container.appendChild(img);
+    }
+
+    // Show link to original file
+    linkDiv.innerHTML = `<a href="${originalUrl}" target="_blank" style="color:#fff;text-decoration:underline;">View Original</a>`;
+
+    document.getElementById('lightbox').style.display = 'flex';
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+  }
 </script>
 
 </body>
