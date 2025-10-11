@@ -3,45 +3,40 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Login</title>
+<title>login</title>
 <style>
-  /* Style the body to center content */
   body {
     display: flex;
+    height: 100vh;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* full viewport height */
-    margin: 0;
-    font-family: Arial, sans-serif;
     background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
   }
 
-  /* Container for the login form */
-  .login-container {
-    background-color: #fff;
-    padding: 40px;
+  .login-box {
+    background: white;
+    padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    text-align: center;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
     width: 300px;
+    text-align: center;
   }
 
-  /* Style the input field */
   input[type="text"] {
     width: 80%;
     padding: 10px;
     margin-top: 10px;
     margin-bottom: 20px;
-    border: 1px solid #ccc;
     border-radius: 4px;
+    border: 1px solid #ccc;
   }
 
-  /* Style the button */
   button {
     padding: 10px 20px;
     background-color: #007bff;
-    color: white;
     border: none;
+    color: white;
     border-radius: 4px;
     cursor: pointer;
   }
@@ -50,7 +45,6 @@
     background-color: #0056b3;
   }
 
-  /* Style message text */
   #message {
     margin-top: 15px;
     font-weight: bold;
@@ -59,60 +53,32 @@
 </head>
 <body>
 
-<div class="login-container">
-<h1>Login</h1>
+<div class="login-box">
+<h2>login</h2>
 <input type="text" id="username" placeholder="Enter username" />
 <br />
-<button onclick="checkLogin()">Enter</button>
+<button onclick="checkLogin()">enter</button>
 <p id="message"></p>
 </div>
 
 <script>
-async function fetchLoginInfo() {
-  const owner = 'ggz2'; // replace with your repo owner
-  const repo = 'info';   // replace with your repo name
-  const path = 'path/to/login.txt'; // replace with your login file path
+  // Example login info (replace with your GitHub fetch if needed)
+  const validUsernames = ['user1', 'user2', 'admin']; // replace or fetch dynamically
+  const redirectUrl = 'https://ggz2.github.io/gall.html'; // URL to go upon success
 
-  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+  function checkLogin() {
+    const username = document.getElementById('username').value.trim();
 
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const data = await response.json();
-
-    // The content is base64 encoded
-    const content = atob(data.content);
-    return content.trim(); // returns login info
-  } catch (error) {
-    document.getElementById('message').innerText = 'Error fetching login info.';
-    console.error(error);
-  }
-}
-
-async function checkLogin() {
-  const input = document.getElementById('username').value;
-  const loginInfo = await fetchLoginInfo();
-  if (!loginInfo) {
-    return; // fetch error
-  }
-  // Example for plain text login info with username:password per line
-  const lines = loginInfo.split('\n');
-  let success = false;
-  for (const line of lines) {
-    const [user, pass] = line.split(':');
-    if (user === input) {
-      success = true;
-      break;
+    if (validUsernames.includes(username)) {
+      document.getElementById('message').innerText = 'Login successful!';
+      // Redirect after a short delay if needed
+      setTimeout(() => {
+        window.location.href = redirectUrl;
+      }, 500);
+    } else {
+      document.getElementById('message').innerText = 'Invalid username.';
     }
   }
-  if (success) {
-    document.getElementById('message').innerText = 'Login successful!';
-  } else {
-    document.getElementById('message').innerText = 'Invalid login.';
-  }
-}
 </script>
 
 </body>
