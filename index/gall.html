@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>view</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f0f0f0;
+  }
+
+  h1 {
+    text-align: center;
+    padding: 20px;
+  }
+
+  /* Gallery styles */
+  #gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  /* Thumbnail images */
+  .thumbnail {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: transform 0.2s;
+  }
+
+  .thumbnail:hover {
+    transform: scale(1.05);
+  }
+
+  /* Lightbox overlay styles */
+  #lightbox {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  #lightbox img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 0 20px #000;
+  }
+</style>
+</head>
+<body>
+
+<h1>GitHub Image Gallery</h1>
+<div id="gallery"></div>
+
+<!-- Lightbox overlay -->
+<div id="lightbox" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt="Large Image"/>
+</div>
+
+<script>
+  // Replace these with your repo info
+  const owner = 'ggz2';
+  const repo = 'info';
+  const folderPath = 'all'; // folder in your repo with images
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}`;
+
+  // Fetch list of files
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(files => {
+      // Filter image files (e.g., jpg, png, gif)
+      const imageFiles = files.filter(file => /\.(png|jpg|jpeg|gif)$/i.test(file.name));
+      displayImages(imageFiles);
+    })
+    .catch(error => {
+      console.error('Error fetching images:', error);
+    });
+
+  function displayImages(files) {
+    const gallery = document.getElementById('gallery');
+    files.forEach(file => {
+      // Get raw URL for the image
+      const imageUrl = file.download_url;
+      const thumbUrl = imageUrl; // You can generate thumbnails if you want, or resize images
+
+      // Create image element
+      const img = document.createElement('img');
+      img.src = thumbUrl;
+      img.className = 'thumbnail';
+      img.onclick = () => openLightbox(imageUrl);
+      gallery.appendChild(img);
+    });
+  }
+
+  function openLightbox(imageSrc) {
+    const lightbox = document.getElementById('lightbox');
+    const largeImage = document.getElementById('lightbox-img');
+    largeImage.src = imageSrc;
+    lightbox.style.display = 'flex';
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
