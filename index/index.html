@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GitHub Repo Access</title>
+</head>
+<body>
+<h1>Login</h1>
+<input type="text" id="username" placeholder="Enter username" />
+<button onclick="checkLogin()">Login</button>
+<p id="message"></p>
+
+<script>
+async function fetchLoginInfo() {
+  const owner = 'ggz2'; // replace with repo owner
+  const repo = 'info';   // replace with repo name
+  const path = 'path/to/login.txt'; // replace with the path to your txt file in the repo
+
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+
+    // The content is base64 encoded
+    const content = atob(data.content);
+    return content.trim(); // login info stored in the file
+  } catch (error) {
+    document.getElementById('message').innerText = 'Error fetching login info.';
+    console.error(error);
+  }
+}
+
+async function checkLogin() {
+  const input = document.getElementById('username').value;
+  const loginInfo = await fetchLoginInfo();
+  if (input === loginInfo) {
+    document.getElementById('message').innerText = 'Login successful!';
+  } else {
+    document.getElementById('message').innerText = 'Invalid login.';
+  }
+}
+</script>
+</body>
+</html>
