@@ -3,125 +3,61 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Simple Chat Room</title>
+<title>Multi-user Chat</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background: #f0f0f0;
-  }
-
-  #loginScreen {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-
-  #chatScreen {
-    display: none;
-    flex-direction: column;
-    height: 100vh;
-  }
-
-  #usernameInput {
-    padding: 10px;
-    font-size: 1em;
-    margin-bottom: 10px;
-  }
-
-  #loginBtn {
-    padding: 10px 20px;
-    font-size: 1em;
-    cursor: pointer;
-  }
-
-  #messages {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-    background: #fff;
-    border-top: 1px solid #ccc;
-  }
-
-  #messages p {
-    margin: 5px 0;
-  }
-
-  #messageInput {
-    padding: 10px;
-    font-size: 1em;
-    width: calc(100% - 100px);
-  }
-
-  #sendBtn {
-    padding: 10px 20px;
-    font-size: 1em;
-    cursor: pointer;
-  }
-
-  .message {
-    margin: 5px 0;
-  }
-
-  .message span {
-    font-weight: bold;
-  }
+  body { font-family: Arial, sans-serif; margin: 0; }
+  #chat { display: flex; flex-direction: column; height: 100vh; }
+  #messages { flex: 1; padding: 10px; overflow-y: auto; background: #f0f0f0; }
+  #messages p { margin: 5px 0; }
+  #inputArea { display: flex; padding: 10px; background: #ddd; }
+  #messageInput { flex: 1; padding: 10px; font-size: 1em; }
+  #sendBtn { padding: 10px; }
 </style>
 </head>
 <body>
-
-<div id="loginScreen">
-  <h2>Enter your username to join chat</h2>
-  <input type="text" id="usernameInput" placeholder="Username" />
-  <button id="loginBtn">Join Chat</button>
-</div>
-
-<div id="chatScreen">
-  <h2>Chat Room</h2>
+<div id="chat">
   <div id="messages"></div>
-  <div style="display:flex; margin-top:10px;">
+  <div id="inputArea">
     <input type="text" id="messageInput" placeholder="Type a message..." />
     <button id="sendBtn">Send</button>
   </div>
 </div>
 
 <script>
+  const ws = new WebSocket('ws://localhost:8080');
   let username = '';
 
-  document.getElementById('loginBtn').onclick = () => {
-    const input = document.getElementById('usernameInput').value.trim();
-    if (input) {
-      username = input;
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('chatScreen').style.display = 'flex';
-    } else {
-      alert('Please enter a username.');
-    }
+  // Prompt for username
+  while (!username) {
+    username = prompt('Enter your username:');
+  }
+
+  ws.onopen = () => {
+    console.log('Connected to server');
+  };
+
+  ws.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+    const p = document.createElement('p');
+    p.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
+    document.getElementById('messages').appendChild(p);
+    // Auto scroll
+    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
   };
 
   document.getElementById('sendBtn').onclick = sendMessage;
   document.getElementById('messageInput').onkeydown = (e) => {
-    if (e.key === 'Enter') {
-      sendMessage();
-    }
+    if (e.key === 'Enter') sendMessage();
   };
 
   function sendMessage() {
-    const msgInput = document.getElementById('messageInput');
-    const messageText = msgInput.value.trim();
-    if (messageText) {
-      const msgDiv = document.createElement('p');
-      msgDiv.className = 'message';
-      msgDiv.innerHTML = `<span>${username}:</span> ${messageText}`;
-      document.getElementById('messages').appendChild(msgDiv);
-      msgInput.value = '';
-      // Scroll to bottom
-      document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
-    }
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const msg = { user: username, text: text };
+    ws.send(JSON.stringify(msg));
+    input.value = '';
   }
 </script>
-
 </body>
 </html>
