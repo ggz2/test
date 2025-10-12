@@ -102,6 +102,19 @@
   const folderPath = 'all'; // folder with images/videos
   const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}`;
 
+  function closeLightbox() {
+    const container = document.getElementById('mediaContainer');
+    const videos = container.getElementsByTagName('video');
+    // Pause all videos
+    for (let v of videos) {
+    v.pause();
+    }
+    // Clear the container
+    container.innerHTML = '';
+    document.getElementById('originalLink').innerHTML = '';
+    document.getElementById('lightbox').style.display = 'none';
+    }
+  
   fetch(apiUrl)
     .then(response => {
       if (!response.ok) {
