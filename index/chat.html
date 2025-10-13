@@ -24,7 +24,14 @@
 </div>
 
 <script>
-  const ws = new WebSocket('ws://localhost:8080');
+  // Set your server's hostname and port here
+  const hostname = 'localhost'; // or your server address
+  const port = 6262; // your WebSocket server port
+
+  // Construct the WebSocket URL dynamically
+  const wsUrl = `ws://${hostname}:${port}`;
+  const wss = new WebSocket(wsUrl);
+
   let username = '';
 
   // Prompt for username
@@ -32,11 +39,11 @@
     username = prompt('Enter your username:');
   }
 
-  ws.onopen = () => {
+  wss.onopen = () => {
     console.log('Connected to server');
   };
 
-  ws.onmessage = (event) => {
+  wss.onmessage = (event) => {
     const msg = JSON.parse(event.data);
     const p = document.createElement('p');
     p.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
@@ -55,7 +62,7 @@
     const text = input.value.trim();
     if (!text) return;
     const msg = { user: username, text: text };
-    ws.send(JSON.stringify(msg));
+    wss.send(JSON.stringify(msg));
     input.value = '';
   }
 </script>
