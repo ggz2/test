@@ -1,13 +1,40 @@
-<script>
-  // Replace hostname and port as needed
-  const hostname = 'https://literate-dollop-x6rp4rjxpqw3vx4v.github.dev/'; // or your Codespaces URL
-  const port = 6524; // your server port
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MuC</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; }
+  #chat { display: flex; flex-direction: column; height: 100vh; }
+  #messages { flex: 1; padding: 10px; overflow-y: auto; background: #f0f0f0; }
+  #messages p { margin: 5px 0; }
+  #inputArea { display: flex; padding: 10px; background: #ddd; }
+  #messageInput { flex: 1; padding: 10px; font-size: 1em; }
+  #sendBtn { padding: 10px; }
+</style>
+</head>
+<body>
+<div id="chat">
+  <div id="messages"></div>
+  <div id="inputArea">
+    <input type="text" id="messageInput" placeholder="Type a message..." />
+    <button id="sendBtn">Send</button>
+  </div>
+</div>
 
+<script>
+  // Set your server's hostname and port here
+  const hostname = 'https://literate-dollop-x6rp4rjxpqw3vx4v.github.dev/'; // or your server address
+  const port = 6524; // your WebSocket server port
+
+  // Construct the WebSocket URL dynamically
   const wsUrl = `ws://${hostname}:${port}`;
   const wss = new WebSocket(wsUrl);
 
   let username = '';
 
+  // Prompt for username
   while (!username) {
     username = prompt('Enter your username:');
   }
@@ -21,6 +48,7 @@
     const p = document.createElement('p');
     p.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
     document.getElementById('messages').appendChild(p);
+    // Auto scroll
     document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
   };
 
@@ -38,3 +66,5 @@
     input.value = '';
   }
 </script>
+</body>
+</html>
