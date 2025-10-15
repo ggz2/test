@@ -115,21 +115,17 @@
     document.getElementById('lightbox').style.display = 'none';
     }
   
-  fetch(apiUrl)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+// Fetch file list from GitHub repo (public repo example)
+fetch('https://api.github.com/repos/ggz2/info/contents/all')
+  .then(response => response.json())
+  .then(data => {
+    data.forEach(file => {
+      if (file.type === 'file' && /\.(jpg|png|gif)$/i.test(file.name)) {
+        const url = file.download_url;
+        // Create image element as above
       }
-      return response.json();
-    })
-    .then(files => {
-      // Filter for images and mp4 videos
-      const mediaFiles = files.filter(file => /\.(png|jpg|jpeg|gif|mp4)$/i.test(file.name));
-      displayMedia(mediaFiles);
-    })
-    .catch(error => {
-      console.error('Error fetching media files:', error);
     });
+  });
 
   function displayMedia(files) {
     const gallery = document.getElementById('gallery');
