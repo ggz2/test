@@ -96,83 +96,104 @@
   <div id="originalLink"></div>
 </div>
 
-<script>
-  const owner = 'ggz2'; // your GitHub username
-  const repo = 'info'; // your repo containing files
-  const folderPath = 'all'; // folder with images/videos
-  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}`;
+<!-- Keep your existing HTML and CSS the same -->
 
-  function closeLightbox() {
-    const container = document.getElementById('mediaContainer');
-    const videos = container.getElementsByTagName('video');
-    // Pause all videos
-    for (let v of videos) {
-    v.pause();
-    }
-    // Clear the container
-    container.innerHTML = '';
-    document.getElementById('originalLink').innerHTML = '';
-    document.getElementById('lightbox').style.display = 'none';
-    }
-  
-// Fetch file list from GitHub repo (public repo example)
-fetch('https://api.github.com/repos/ggz2/info/contents/all')
-  .then(response => response.json())
-  .then(data => {
-    data.forEach(file => {
-      if (file.type === 'file' && /\.(jpg|png|gif)$/i.test(file.name)) {
-        const url = file.download_url;
-        // Create image element as above
+<script>
+  // List your repositories here
+  const repos = [
+    'ggz2/info',        // repo1
+    'ggz2r/info2', // repo2
+    // add more repositories as needed
+  ];
+  const folderPath = 'all'; // folder with images/videos
+  const filesCollected = [];
+
+  // Utility function to fetch files from a repo
+async function fetchRepoFiles(repo) {
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/${folderPath}`;
+  try {
+    const response = await fetch(apiUrl, {
+      headers: {
+        // If needed, add your GitHub token here for private repos
+        // 'Authorization': 'token YOUR_GITHUB_TOKEN'
       }
     });
-  });
-
-  function displayMedia(files) {
-    const gallery = document.getElementById('gallery');
-    files.forEach(file => {
-      const thumbnailUrl = file.download_url;
-      const ext = file.name.split('.').pop().toLowerCase();
-
-      const thumb = document.createElement('img');
-      thumb.src = thumbnailUrl;
-      thumb.className = 'thumbnail';
-      thumb.title = file.name;
-      thumb.onclick = () => openLightbox(file.download_url, file.html_url, ext);
-
-      gallery.appendChild(thumb);
-    });
-  }
-
-  function openLightbox(mediaUrl, originalUrl, ext) {
-    const container = document.getElementById('mediaContainer');
-    const linkDiv = document.getElementById('originalLink');
-    container.innerHTML = ''; // Clear previous content
-    linkDiv.innerHTML = '';
-
-    if (ext === 'mp4') {
-      // Show video player
-      const video = document.createElement('video');
-      video.src = mediaUrl;
-      video.controls = true;
-      video.autoplay = true;
-      container.appendChild(video);
-    } else {
-      // Show image
-      const img = document.createElement('img');
-      img.src = mediaUrl;
-      container.appendChild(img);
+    if (!response.ok) {
+      console.error(`Failed to fetch ${repo}: ${response.status}`);
+      return [];
     }
+    const data = await response.json();
+    // Filter for images/videos
+    const mediaFiles = data.filter(file => {
+      if (file.type !== 'file') return false;
+      return /\.(jpg|jpeg|png|gif|mp4)$/i.test(file.name);
+    });
+    // Map to objects for easier handling
+    return mediaFiles.map(file => ({
+      download_url: file.download_url,
+      html_url: file.html_url,
+      name: file.name
+    }));
+  } catch (err) {
+    console.error(`Error fetching ${repo}:`, err);
+    return [];
+  }
+}
 
-    // Show link to original file
-    linkDiv.innerHTML = `<a href="${originalUrl}" target="_blank" style="color:#fff;text-decoration:underline;">View Original</a>`;
+// Main function to gather all files
+async function gatherAllFiles() {
+  for (const repo of repos) {
+    const files = await fetchRepoFiles(repo);
+    filesCollected.push(...files);
+  }
+  displayMedia(filesCollected);
+}
 
-    document.getElementById('lightbox').style.display = 'flex';
+// Call the gathering function
+gatherAllFiles();
+
+// Your existing displayMedia, openLightbox, closeLightbox functions
+function displayMedia(files) {
+  const gallery = document.getElementById('gallery');
+  files.forEach(file => {
+    const ext = file.name.split('.').pop().toLowerCase();
+
+    const thumb = document.createElement('img');
+    thumb.src = file.download_url;
+    thumb.className = 'thumbnail';
+    thumb.title = file.name;
+    thumb.onclick = () => openLightbox(file.download_url, file.html_url, ext);
+
+    gallery.appendChild(thumb);
+  });
+}
+
+// Lightbox functions remain the same
+function openLightbox(mediaUrl, originalUrl, ext) {
+  const container = document.getElementById('mediaContainer');
+  const linkDiv = document.getElementById('originalLink');
+  container.innerHTML = '';
+  linkDiv.innerHTML = '';
+
+  if (ext === 'mp4') {
+    const video = document.createElement('video');
+    video.src = mediaUrl;
+    video.controls = true;
+    video.autoplay = true;
+    container.appendChild(video);
+  } else {
+    const img = document.createElement('img');
+    img.src = mediaUrl;
+    container.appendChild(img);
   }
 
-  function closeLightbox() {
-    document.getElementById('lightbox').style.display = 'none';
-  }
+  linkDiv.innerHTML = `<a href="${originalUrl}" target="_blank" style="color:#fff;text-decoration:underline;">View Original</a>`;
+  document.getElementById('lightbox').style.display = 'flex';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').style.display = 'none';
+}
 </script>
-
 </body>
 </html>
