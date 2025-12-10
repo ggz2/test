@@ -120,7 +120,7 @@ fetch('https://librar-jar.vercel.app/files')
   .then(response => response.json())
   .then(data => {
     data.forEach(file => {
-      if (file.type === 'file' && /\.(jpg|png|gif)$/i.test(file.name)) {
+      if (file.type === 'file' && /\.(jpg|png|gif|mp4)$/i.test(file.name)) {
         const url = file.download_url;
         // Create image element as above
       }
